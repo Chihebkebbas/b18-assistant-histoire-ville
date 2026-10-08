@@ -11,6 +11,7 @@
 Aujourd'hui, vous n'écrirez pas le code à la main. D'abord un chat web sans outil (J1-02 à J1-04), puis un agent dans dsh dont vous relirez chaque modification (J1-05 à J1-09), puis une épreuve où chacun explique ce qui a été écrit (J1-10). Le fil de la semaine : passer de « je subis ce que l'IA génère » à « je vérifie ce que je livre ».
 
 🛠 **À faire**
+
 1. **Formez le binôme.** Décidez qui manipule en premier et qui vérifie. Échangez les rôles environ toutes les 20 minutes : chacun doit pouvoir expliquer le résultat. Notez les rôles de départ dans le carnet.
 2. **Fixez un thème provisoire.** Dans le carnet, écrivez en une phrase à qui votre assistant pourrait servir, puis trois questions auxquelles il devrait, à terme, répondre. Choisissez un sujet sans données personnelles ni conseil médical, juridique ou financier réel. Aucune de vos trois questions ne doit contenir le mot « envoyer » : en J1-07 elles deviennent des boutons, et le contrat de J2 cherche le bouton « Envoyer » par son nom. Le formateur confirmera le thème plus tard.
 3. **Recevez votre cahier personnel.** Le formateur vous remet, en privé, un cahier de deux valeurs propres à votre binôme (mode de remise à confirmer par le formateur) :
@@ -18,6 +19,7 @@ Aujourd'hui, vous n'écrirez pas le code à la main. D'abord un chat web sans ou
    - **deux mots** que Cap Web devra reconnaître, en plus de « salut », « aide » et « test ».
 
    Recopiez-les tels quels dans la section « Cahier personnel » du carnet. Vous en aurez besoin dès J1-06 (dans vos prompts), puis en J1-09 et en J1-10 ; le formateur s'en servira pour vérifier votre travail. Ne les changez pas et ne les échangez pas avec un autre binôme.
+
 4. **Lancez la page.** Le formateur peut vous arrêter pour un mini-cours : écoutez d'abord. Dans un terminal ouvert à la racine du dossier, vérifiez `node --version` (24.20 minimum), puis lancez le serveur. Gardez ce terminal ouvert : `npm ci` n'est pas nécessaire pour lancer la page.
 
    ```sh
@@ -30,12 +32,13 @@ Aujourd'hui, vous n'écrirez pas le code à la main. D'abord un chat web sans ou
 7. **Échangez les rôles.** L'autre personne relance le serveur à son tour (Ctrl+C puis `npm start`). Notez dans le carnet la commande, le dossier et le résultat.
 
 ✅ **Preuve** — cochez, ou montrez au formateur
-- [ ] La page de départ s'affiche à `http://127.0.0.1:3000` avec son statut de départ, sur le poste où le binôme travaille (un seul atelier par binôme).
-- [ ] Les rôles, le thème provisoire, les trois questions et les deux valeurs du cahier personnel sont dans le [carnet](../carnet.md).
-- [ ] Vous citez sans notes les trois fichiers de la page (`index.html`, `styles.css`, `app.js`) et vous montrez `main`, `h1` et `p#status` dans `index.html`.
 
+- [x] La page de départ s'affiche à `http://127.0.0.1:3000` avec son statut de départ, sur le poste où le binôme travaille (un seul atelier par binôme).
+- [x] Les rôles, le thème provisoire, les trois questions et les deux valeurs du cahier personnel sont dans le [carnet](../carnet.md).
+- [x] Vous citez sans notes les trois fichiers de la page (`index.html`, `styles.css`, `app.js`) et vous montrez `main`, `h1` et `p#status` dans `index.html`.
 
 🆘 **Si ça bloque**
+
 - « EADDRINUSE » : le port est déjà utilisé. Si c'est votre premier serveur, gardez-le ou arrêtez-le avec Ctrl+C avant de relancer. Sinon, notez l'erreur et demandez de l'aide, sans arrêter un processus inconnu.
 - `npm start` ne trouve rien : vérifiez votre dossier courant avant d'entrer dans `atelier`.
 - Windows : si PowerShell répond « l'exécution de scripts est désactivée sur ce système » dès `npm start`, tapez **une seule fois** `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`, répondez `O`, puis rouvrez le terminal : `npm`, `npx` et `dsh` marcheront ensuite. Si Windows refuse ce réglage (poste géré par l'école), tapez `npm.cmd`, `npx.cmd` et `dsh.cmd` à la place de `npm`, `npx` et `dsh`, partout dans la suite.

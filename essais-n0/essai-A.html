@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot — Histoire de Paris</title>
+    <style>
+      :root {
+        font-family: Georgia, "Times New Roman", serif;
+        background: #f4efe6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: linear-gradient(160deg, #eef2f3, #f4efe6);
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .app {
+        width: 100%;
+        max-width: 720px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #fffdf8;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+      }
+      header {
+        background: #1f3a5f;
+        color: #fff;
+        padding: 18px 24px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      header p {
+        margin: 4px 0 0;
+        font-size: 0.85rem;
+        opacity: 0.8;
+      }
+      #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .msg {
+        max-width: 82%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        line-height: 1.45;
+        font-size: 0.95rem;
+        white-space: pre-line;
+      }
+      .bot {
+        align-self: flex-start;
+        background: #ece5d8;
+        color: #2b2b2b;
+        border-bottom-left-radius: 4px;
+      }
+      .user {
+        align-self: flex-end;
+        background: #1f3a5f;
+        color: #fff;
+        border-bottom-right-radius: 4px;
+      }
+      .suggestions {
+        padding: 0 20px 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .suggestions button {
+        font-family: inherit;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid #c9bfae;
+        background: #fff;
+        cursor: pointer;
+      }
+      .suggestions button:hover {
+        background: #f1e9da;
+      }
+      form {
+        display: flex;
+        gap: 8px;
+        padding: 14px 20px;
+        border-top: 1px solid #e3dccb;
+        background: #faf6ec;
+      }
+      input {
+        flex: 1;
+        font-family: inherit;
+        font-size: 0.95rem;
+        padding: 10px 14px;
+        border: 1px solid #cfc4ad;
+        border-radius: 10px;
+        outline: none;
+      }
+      input:focus {
+        border-color: #1f3a5f;
+      }
+      form button {
+        font-family: inherit;
+        font-size: 0.95rem;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 10px;
+        background: #1f3a5f;
+        color: #fff;
+        cursor: pointer;
+      }
+      form button:hover {
+        background: #152c49;
+      }
+      .typing span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 3px;
+        background: #8a7c63;
+        border-radius: 50%;
+        animation: blink 1.2s infinite;
+      }
+      .typing span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%,
+        80%,
+        100% {
+          opacity: 0.25;
+        }
+        40% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>🛕 Chatbot — Histoire de Paris</h1>
+        <p>
+          De Lutèce à nos jours : posez vos questions sur l'histoire de la
+          ville.
+        </p>
+      </header>
+      <div id="chat"></div>
+      <div class="suggestions" id="suggestions"></div>
+      <form id="form">
+        <input
+          id="input"
+          type="text"
+          placeholder="Ex. : raconte-moi la Révolution française à Paris…"
+          autocomplete="off"
+        />
+        <button type="submit">Envoyer</button>
+      </form>
+    </div>
+
+    <script>
+      // ---- Base de connaissances : chaque entrée = mots-clés + réponse ----
+      const KB = [
+        {
+          keys: [
+            "lutèce",
+            "lutetia",
+            "origine",
+            "fondation",
+            "celtique",
+            "gaulois",
+            "tribu",
+            "parisii",
+          ],
+          a: "Paris naît sous le nom de Lutèce (Lutetia). Vers le IIIe siècle av. J.-C., les Parisii, un peuple gaulois de la confédération des Sénons, s'installent sur l'île de la Cité, un gué stratégique sur la Seine. La ville est mentionnée par César dans La Guerre des Gaules (52 av. J.-C.), lors du siège mené par Labienus contre les Parisii.",
+        },
+        {
+          keys: [
+            "romain",
+            "romaine",
+            "antiquité",
+            "arènes",
+            "thermes",
+            "cluny",
+            "cardo",
+          ],
+          a: "Sous l'Empire romain, Lutèce s'étend sur la rive gauche de la Seine (le « cardo » correspond aujourd'hui à la rue Saint-Jacques). On y construit des thermes (thermes de Cluny, visibles encore aujourd'hui), un forum, un aqueduc et des arènes (les arènes de Lutèce, restaurées au XIXe siècle). Au IVe siècle, la ville prend le nom de « civitas Parisiorum », d'où vient « Paris ».",
+        },
+        {
+          keys: ["clovis", "mérovingien", "franque", "geneviève", "francs"],
+          a: "En 508, Clovis, roi des Francs, fait de Paris sa capitale. La ville, épargnée lors des invasions grâce à la résistance attribuée à sainte Geneviève (vers 451 face à Attila), devient un centre majeur du royaume mérovingien. Clovis y est enterré, dans la basilique des Saints-Apostres, future abbaye Sainte-Geneviève.",
+        },
+        {
+          keys: [
+            "viking",
+            "normand",
+            "siège de paris",
+            "885",
+            "eudes",
+            "capétiens",
+            " hugues capet",
+            "capet",
+          ],
+          a: "En 885-886, Paris résiste héroïquement à un grand siège viking : le comte Eudes organise la défense, ce qui affermit le pouvoir des comtes de Paris. En 987, Hugues Capet, leur descendant, est élu roi de France : c'est le début de la dynastie capétienne, qui fera longtemps de Paris la capitale du royaume.",
+        },
+        {
+          keys: [
+            "cathédrale",
+            "notre-dame",
+            "notre dame",
+            "gothique",
+            "1163",
+            "gothique",
+          ],
+          a: "La cathédrale Notre-Dame de Paris est commencée en 1163 sous Louis VII, l'évêque Maurice de Sully impulsant le chantier, et achevée vers 1345. Chef-d'œuvre de l'architecture gothique, elle accueille des événements majeurs : béatification de Jeanne d'Arc (1909), funérailles nationales, et survit à l'incendie du 15 avril 2019 avant sa réouverture en décembre 2024.",
+        },
+        {
+          keys: [
+            "philippe auguste",
+            "enceinte",
+            "muraille",
+            "université",
+            "sorbonne",
+            "quartier latin",
+            "étudiant",
+          ],
+          a: "Philippe Auguste (1180-1223) transforme Paris : il fait bâtir une vaste enceinte (dont on voit encore des restes rue des Jardins-Saint-Paul), pave les rues et fait creuser les Halles. La ville devient la plus grande d'Europe occidentale avec environ 200 000 habitants, et l'université prospère — le Quartier latin doit son nom aux étudiants qui y parlaient latin. La Sorbonne est fondée vers 1257 par Robert de Sorbon.",
+        },
+        {
+          keys: [
+            "révolution",
+            "1789",
+            "bastille",
+            "14 juillet",
+            "roi",
+            "louis xvi",
+            "tuileries",
+            "terreur",
+          ],
+          a: "Paris est l'épicentre de la Révolution française : prise de la Bastille le 14 juillet 1789, marche sur Versailles les 5-6 octobre, fuite manquée du roi à Varennes (1791), chute de la monarchie le 10 août 1792 avec l'attaque des Tuileries, puis exécution de Louis XVI place de la Révolution (actuelle place de la Concorde) le 21 janvier 1793. La Terreur voit dominer les insurrections parisiennes, jusqu'à la chute de Robespierre le 9 thermidor an II (27 juillet 1794).",
+        },
+        {
+          keys: [
+            "napoléon",
+            "empire",
+            "arc de triomphe",
+            "premier consul",
+            "1804",
+          ],
+          a: "Napoléon Bonaparte marque Paris : sacre... enfin, c'est à Notre-Dame qu'il se couronne empereur le 2 décembre 1804 en présence du pape Pie VII. Il lance de grands travaux (arc de triomphe de l'Étoile commandé en 1806, canaux Saint-Martin et de l'Ourcq, numérotation des maisons) et donne à la ville un rayonnement européen.",
+        },
+        {
+          keys: [
+            "haussmann",
+            "second empire",
+            "napoléon iii",
+            "percement",
+            "boulevard",
+            "modernisation",
+            "égout",
+          ],
+          a: "Entre 1853 et 1870, le baron Haussmann, préfet de la Seine sous Napoléon III, métamorphose Paris : percement de grands boulevards rectilignes, immeubles en pierre de taille aux balcons en fer forgé, parcs (Bois de Boulogne et de Vincennes, parcs Monceau, Montsouris, Buttes-Chaumont), réseau d'égouts et aqueducs, gares, et annexation des communes limitrophes en 1860, qui portent Paris de 12 à 20 arrondissements. C'est le « Paris haussmannien » que nous connaissons.",
+        },
+        {
+          keys: ["commune", "1871", "insurrection", "semaine sanglante"],
+          a: "Après la défaite de 1870 face à la Prusse et le siège de Paris, la ville se soulève : le 18 mars 1871, le peuple de Paris proclame la Commune, une insurrection qui dure 72 jours. Elle s'achève dans le sang lors de la « Semaine sanglante » (21-28 mai 1871), avec des milliers de morts et l'incendie de monuments (Tuileries, Hôtel de Ville). Le mot d'ordre communiste « Debout les damnés de la terre » de L'Internationale, écrite par Eugène Pottier, membre de la Commune, en garde la mémoire.",
+        },
+        {
+          keys: ["tour eiffel", "eiffel", "1889", "exposition universelle"],
+          a: "La tour Eiffel est érigée pour l'Exposition universelle de 1889, qui célèbre le centenaire de la Révolution. Construite par Gustave Eiffel en 2 ans, 2 mois et 5 jours, avec 18 038 pièces de fer et 2,5 millions de rivets, elle culmine alors à 312 mètres et devient la plus haute structure du monde. Vivement critiquée à sa naissance (une pétition d'artistes parle de « tour gigantesque de tôle noire »), elle est d'abord promise à la démolition, mais est sauvée par son utilité scientifique et militaire (radio).",
+        },
+        {
+          keys: [
+            "belle époque",
+            "métro",
+            "1900",
+            "art nouveau",
+            "guernica",
+            "cabaret",
+            "montmartre",
+          ],
+          a: "La Belle Époque (env. 1890-1914) fait de Paris la capitale mondiale des arts : Montmartre et ses cabarets (Moulin Rouge, 1889), l'Art nouveau (entrées de métro de Guimard — le métro ouvre en 1900 pour l'Exposition universelle), les impressionnistes puis Picasso, qui arrive en 1904 et peint à Paris Les Demoiselles d'Avignon puis Guernica.",
+        },
+        {
+          keys: [
+            "guerre",
+            "1940",
+            "occupation",
+            "libération de paris",
+            "résistance",
+            "1944",
+            "chatelet",
+            "hitler",
+          ],
+          a: "Paris est occupée par les Allemands du 14 juin 1940 au 25 août 1944. Épargnée par les combats en 1940 (déclarée « ville ouverte »), la ville vit quatre ans d'occupation : rafles, dont celle du Vél d'Hiv (16-17 juillet 1942), réquisition, shortages. La Libération (19-25 août 1944) est une insurrection popularisée par la 2e DB du général Leclerc ; von Choltitz désobéit à l'ordre d'Hitler de détruire la ville. De Gaulle y prononce son célèbre discours « Paris outragé ! Paris brisé ! Paris martyrisé ! mais Paris libéré ! ».",
+        },
+        {
+          keys: [
+            "may 68",
+            "1968",
+            "manifestation",
+            "étudiant",
+            "sorbonne barricade",
+          ],
+          a: "En mai 1968, Paris s'embrase : des manifestations étudiantes (à Nanterre puis au Quartier latin) dégénèrent après la répression policière ; le 10 mai, la « nuit des barricades » voit des centaines de barricades dans les rues. La grève générale qui suit mobilise 7 à 9 millions de travailleurs, entraînant les accords de Grenelle et le départ du général de Gaulle un an plus tard.",
+        },
+        {
+          keys: [
+            "présent",
+            "aujourd'hui",
+            "moderne",
+            "grand paris",
+            "2050",
+            "population",
+            "habitants",
+          ],
+          a: "Aujourd'hui, Paris intra-muros compte environ 2,1 millions d'habitants (plus de 10 millions avec la métropole). La ville poursuit sa transformation : piétonnisation des berges de Seine, ligne 14 du métro prolongée jusqu'à l'aéroport d'Orly, projets du Grand Paris Express, rénovation de Notre-Dame après l'incendie de 2019, objectifs de neutralité carbone à l'horizon 2050.",
+        },
+        {
+          keys: ["arrondissement", "20 arrondissements", "spirale", "escargot"],
+          a: "Depuis l'annexion de 1860, Paris est découpée en 20 arrondissements qui s'enroulent en spirale depuis le centre (le 1er, autour du Louvre, jusqu'au 20e, à l'est) : on dit souvent qu'ils dessinent « un escargot ».",
+        },
+        {
+          keys: ["seine", "fleuve", "île de la cité", "île"],
+          a: "La Seine traverse Paris sur environ 13 km et structure toute son histoire : c'est sur l'île de la Cité, entre ses deux bras, que la ville est née, et le trafic fluvial a fait la richesse de Paris pendant des siècles. Les quais, inscrits au patrimoine mondial de l'UNESCO depuis 1991 avec l'ensemble « Paris, rives de la Seine », sont aujourd'hui piétonnisés à plusieurs endroits.",
+        },
+        {
+          keys: ["salut", "bonjour", "hello", "hey", "coucou", "bonsoir"],
+          a: "Bonjour ! 👋 Je suis votre guide dans l'histoire de Paris. Posez-moi une question sur Lutèce, le Moyen Âge, la Révolution, Haussmann, la Libération… ou cliquez sur une suggestion ci-dessous.",
+        },
+        {
+          keys: ["merci"],
+          a: "Avec plaisir ! N'hésitez pas si vous voulez explorer une autre époque de l'histoire de Paris.",
+        },
+        {
+          keys: ["chronologie", "résumé", "résume", "grandes dates", "frise"],
+          a: "Grandes dates de Paris :\n• IIIe s. av. J.-C. : fondation de Lutèce par les Parisii\n• 52 av. J.-C. : conquête romaine\n• 508 : Clovis fait de Paris sa capitale\n• 987 : Hugues Capet, roi de France\n• 1163 : début de Notre-Dame\n• 1789 : prise de la Bastille\n• 1853-1870 : travaux d'Haussmann\n• 1871 : la Commune\n• 1889 : tour Eiffel\n• 1940-1944 : Occupation, puis Libération\n• 1968 : mai 68\n• 2019-2024 : incendie et réouverture de Notre-Dame",
+        },
+      ];
+
+      const FALLBACK =
+        "Je n'ai pas encore de réponse sur ce sujet précis. Essayez par exemple : « Qui était Haussmann ? », « Que s'est-il passé en 1789 ? », « Raconte-moi la Libération de Paris », ou « Donne-moi la chronologie de Paris ».";
+
+      const SUGGESTIONS = [
+        "Qui étaient les Parisii ?",
+        "Que s'est-il passé en 1789 ?",
+        "Qui était le baron Haussmann ?",
+        "Raconte la Libération de Paris",
+        "La chronologie de Paris",
+      ];
+
+      const chat = document.getElementById("chat");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const suggestions = document.getElementById("suggestions");
+
+      function normalize(s) {
+        return s
+          .toLowerCase()
+          .replace(/[’']/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function addMsg(text, who) {
+        const d = document.createElement("div");
+        d.className = "msg " + who;
+        d.textContent = text;
+        chat.appendChild(d);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function answer(q) {
+        const n = " " + normalize(q) + " ";
+        let best = null,
+          bestScore = 0;
+        for (const e of KB) {
+          let score = 0;
+          for (const k of e.keys) {
+            if (n.includes(k)) score += k.length;
+          }
+          if (score > bestScore) {
+            bestScore = score;
+            best = e;
+          }
+        }
+        return best ? best.a : FALLBACK;
+      }
+
+      function send(q) {
+        addMsg(q, "user");
+        const t = document.createElement("div");
+        t.className = "msg bot typing";
+        t.innerHTML = "<span></span><span></span><span></span>";
+        chat.appendChild(t);
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(
+          () => {
+            t.remove();
+            addMsg(answer(q), "bot");
+          },
+          500 + Math.random() * 400,
+        );
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = input.value.trim();
+        if (!q) return;
+        input.value = "";
+        send(q);
+      });
+
+      SUGGESTIONS.forEach((s) => {
+        const b = document.createElement("button");
+        b.textContent = s;
+        b.addEventListener("click", () => send(s));
+        suggestions.appendChild(b);
+      });
+
+      addMsg(
+        "Bonjour ! Je suis votre guide sur l'histoire de Paris, « la ville lumière ». Posez-moi une question ou choisissez une suggestion ci-dessous.",
+        "bot",
+      );
+    </script>
+  </body>
+</html>

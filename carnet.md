@@ -559,21 +559,58 @@ Pour chaque checkpoint : cochez la case quand toute la preuve de la fiche est r�
 
 ### J1-04 · 🎲 Même prompt, autre réponse — [fiche](checkpoints/J1-04-meme-prompt.md)
 
-- [ ] Validé
+- [x] Validé
 - Le prompt de référence (identique aux trois essais) :
+  > "Fais-moi un chatbot sur "Histoire d'une ville", dans une seule page HTML que j'ouvre dans mon navigateur."
 - Le tableau des écarts (trois colonnes A, B, C ; au moins quatre critères ; des faits, pas des impressions) :
+
+  | Critère                      | A                                                   | B                                                                                                 | C                                                                                                                |
+  | ---------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+  | Structure (longueur, script) | 439 lignes, script en bas du body                   | 845 lignes, script en bas du body                                                                 | 945 lignes, script en bas du body                                                                                |
+  | Réponse à l'envoi            | répond sur le thème, 5 suggestions proposées        | répond sur le thème, 7 suggestions + mots-clés "chronologie"/"anecdotes"                          | répond sur le thème, chaque réponse a une étiquette de catégorie (ex: "À TOUTES ÉPOQUES")                        |
+  | Message hors thème           | "je n'ai pas encore de réponse", propose des pistes | "je ne connais pas encore ce sujet", propose des pistes                                           | "rien trouvé dans ma base", propose des pistes                                                                   |
+  | Message vide                 | refusé, rien ne s'envoie                            | refusé, rien ne s'envoie                                                                          | refusé, bouton grisé pendant la réponse                                                                          |
+  | Style visuel                 | thème clair, header bleu marine, police classique   | thème "vieux livre" beige, devise latine de Paris, mention "hors-ligne, rien envoyé sur Internet" | thème carte avec indicateur "en ligne" (faux), devise latine aussi, titre différent ("Paris à travers le temps") |
+
 - Une phrase de conclusion (ce que ces écarts autorisent, ce qu'ils interdisent de supposer) :
+  > Ces 3 essais me montrent que je peux faire confiance au chatbot pour refuser un message vide et répondre honnêtement quand il ne sait pas, mais je ne peux pas supposer qu'il aura toujours les mêmes fonctionnalités (quiz, mémoire) ni le même style d'une génération à l'autre.
 - Difficulté qui reste :
+  > Aucun des 3 essais n'a de quiz, de bouton Effacer ou de mémoire (localStorage), alors que chatbot-v1.html de J1-02 avait un quiz dès le départ — pas sûr pourquoi cette fois non.
+
+⭐ **Pour aller plus loin (bonus)**
+
+- Colonne D ajoutée avec `chatbot-v1.html` de J1-02, et un 4e essai lancé (`essai-D.html`) :
+
+  | Critère                       | A                          | B                                          | C                                          | v1 (J1-02)                              | D                                         |
+  | ----------------------------- | -------------------------- | ------------------------------------------ | ------------------------------------------ | --------------------------------------- | ----------------------------------------- |
+  | Message par défaut hors thème | un seul `FALLBACK` fixe    | plusieurs `FALLBACKS` tirés au sort        | plusieurs `FALLBACKS` tirés au sort        | un seul `FALLBACK` fixe (identique à A) | un seul `FALLBACK` fixe                   |
+  | Relances après réponse        | pas de puces après réponse | puces différentes selon le sujet (`CHIPS`) | puces différentes selon le sujet (`CHIPS`) | puces fixes, toujours les 4 mêmes       | pas de puces après réponse                |
+  | Quiz                          | non                        | non                                        | non                                        | oui (bugué)                             | non                                       |
+  | Style visuel                  | thème clair, bleu marine   | thème "vieux livre" beige                  | thème carte, indicateur "en ligne"         | thème sombre violet                     | thème sombre, indicateur "en ligne" aussi |
+
+  v1 ressemble le plus à **A** (un seul message de secours fixe, même logique de `FALLBACK`), mais v1 est seul à avoir un quiz, et ses puces de relance ressemblent plus à celles de B/C. Ce n'est pas un match parfait avec un seul des trois.
+
+- À partir de combien d'essais un écart cesse de surprendre :
+  > Dès le 2e essai, le comportement de base ne surprend plus (toujours sur le thème, message vide toujours refusé, réponse honnête si hors sujet). Même après 5 essais (v1, A, B, C, D), le style visuel et les noms de variables dans le code changent encore à chaque fois, sans qu'on puisse deviner lesquels avant de voir le résultat.
 
 ## L'agent (N1 Demander)
 
 ### J1-05 · 🛠 dsh en main — [fiche](checkpoints/J1-05-dsh-en-main.md)
 
-- [ ] Validé
+- [ ] Validé (bloqué, pas de notre fait — voir difficulté)
 - Preuve (`dsh --version`, mode Read Only, modèle `capweb-ia`, `git status -- atelier` propre ; **jamais la clé**) :
+  > `dsh --version` affiche bien `0.1.5-rc.2`. `git status -- atelier` reste propre ("nothing to commit, working tree clean") à chaque vérification. Le mode Read Only et le modèle `capweb-ia` n'ont pas pu être vérifiés dans l'interface web : l'agent ne répond jamais (voir difficulté). La clé n'a jamais été vue ni collée ailleurs que dans `dsh-capweb/.credentials.yaml`.
 - La consigne exacte envoyée à l'agent et sa réponse :
+  > Pas obtenue : `dsh --profile headless "Reponds uniquement OK"` échoue avant de donner une vraie réponse (voir difficulté). La consigne de lecture du dossier (`Liste les fichiers de ce dossier et dis ce que fait chacun...`) n'a donc pas pu être envoyée.
 - Pour chaque fichier cité : existe ou non, description juste ou fausse, pourquoi ; et un fichier qu'il n'a pas cité :
+  > Sans réponse de l'agent, rien à vérifier ici pour l'instant.
 - Difficulté qui reste :
+  > Plusieurs blocages successifs, tous corrigés sauf le dernier :
+  >
+  > 1. `dsh --version` ne répondait rien du tout : Node actif était en v22.16.0, trop ancien pour une fonctionnalité dont dsh a besoin (`import.meta.main`, absente avant Node 22.2x/24). Corrigé en activant un Node plus récent.
+  > 2. `dsh-capweb/settings.yaml` et `.credentials.yaml` appartenaient à `root` (créés avec `sudo` par erreur) : dsh ne pouvait pas les lire avec notre utilisateur normal. Corrigé en supprimant le dossier et en le recréant sans `sudo`.
+  > 3. En activant un Node plus récent via Homebrew, c'était en fait une version Intel (x64) tournant sous Rosetta sur notre Mac Apple Silicon (arm64) : dsh plantait sur `Cannot find the native Koffi module`. Corrigé en utilisant un Node arm64 (via nvm, version 22.23.3) qui correspond à la vraie architecture du Mac.
+  > 4. Une fois tout ça réglé, `dsh --profile headless "Reponds uniquement OK"` atteint bien la passerelle et s'authentifie (la clé est donc correcte), mais renvoie une erreur `402 : Billing verification failed. Please check your payment method.` — un problème de facturation sur le compte IA de la passerelle, côté formateur, pas sur notre poste. Signalé au formateur, en attente de correction de son côté.
 
 ### J1-06 · 🧱 Anatomie d'un prompt — [fiche](checkpoints/J1-06-anatomie-dun-prompt.md)
 

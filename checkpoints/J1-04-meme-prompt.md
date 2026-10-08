@@ -18,23 +18,24 @@ Répartissez-vous le travail : chacun lance une ou deux conversations et ouvre a
 4. Ouvrez les trois pages et faites sur chacune les mêmes cinq essais : un message sur le thème ; un message hors thème ; un message vide ; un rechargement (F5) ; une fenêtre réduite à 360 px de large. Vous pouvez reprendre les comportements de votre liste de contrôle de J1-03.
 5. Dans le carnet, section J1-04, remplissez le tableau : trois colonnes, au moins quatre critères. Une cellule est un **fait constaté** (« 112 lignes », « refuse le message vide », « le script est en bas de la page »), jamais une impression (« mieux », « plus propre »).
 
-   | Critère | A | B | C |
-   |---|---|---|---|
-   | Structure du code (fichiers, longueur, place du script) | | | |
-   | Comportement à l'envoi (que répond le bot, sur quel thème) | | | |
-   | Ce qui manque (message vide, mémoire, bouton effacer…) | | | |
-   | Ce qui diffère (noms, textes, réponses, ton) | | | |
+   | Critère                                                    | A   | B   | C   |
+   | ---------------------------------------------------------- | --- | --- | --- |
+   | Structure du code (fichiers, longueur, place du script)    |     |     |     |
+   | Comportement à l'envoi (que répond le bot, sur quel thème) |     |     |     |
+   | Ce qui manque (message vide, mémoire, bouton effacer…)     |     |     |     |
+   | Ce qui diffère (noms, textes, réponses, ton)               |     |     |     |
 
 6. Écrivez **une phrase** de conclusion : ce que ces écarts vous autorisent à faire confiance… et ce qu'ils vous interdisent de supposer.
 
 ✅ **Preuve** — cochez, ou montrez au formateur
-- [ ] Le carnet contient le prompt de référence, collé une fois, avec la mention qu'il a servi mot pour mot aux trois essais.
-- [ ] `essai-A.html`, `essai-B.html` et `essai-C.html` existent dans `essais-n0`, chacun issu d'une conversation neuve.
-- [ ] Le tableau des écarts a trois colonnes et au moins quatre critères ; chaque cellule est un fait que vous pouvez montrer dans la page ou dans le code.
-- [ ] Une phrase de conclusion sur la confiance à accorder est écrite.
 
+- [x] Le carnet contient le prompt de référence, collé une fois, avec la mention qu'il a servi mot pour mot aux trois essais.
+- [x] `essai-A.html`, `essai-B.html` et `essai-C.html` existent dans `essais-n0`, chacun issu d'une conversation neuve.
+- [x] Le tableau des écarts a trois colonnes et au moins quatre critères ; chaque cellule est un fait que vous pouvez montrer dans la page ou dans le code.
+- [x] Une phrase de conclusion sur la confiance à accorder est écrite.
 
 🆘 **Si ça bloque**
+
 - Les trois réponses se ressemblent beaucoup : notez-le, c'est un résultat. Cherchez des écarts plus fins : noms de variables, nombre de lignes, textes des réponses du bot, comportement avec un message vide ou très long.
 - Le chat cite vos essais précédents : ce n'est pas une conversation neuve, recommencez dans une nouvelle.
 - Une des trois pages ne s'affiche pas : c'est un écart, notez-le dans sa colonne au lieu de la réparer.

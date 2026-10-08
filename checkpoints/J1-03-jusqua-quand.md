@@ -21,14 +21,15 @@
 9. Deux phrases de conclusion dans le carnet : quelle modification a cassé le plus de choses, et comment l'auriez-vous su sans la liste de contrôle ?
 
 ✅ **Preuve** — cochez, ou montrez au formateur
-- [ ] Le carnet contient la liste de contrôle de la version 1 (au moins cinq comportements essayés).
-- [ ] Le journal compte au moins trois entrées, une par modification, chacune avec ses quatre lignes.
-- [ ] Les fichiers `chatbot-v1.html` à `chatbot-v4.html` existent, une version par fichier, aucune écrasée.
-- [ ] Si vous n'avez trouvé aucune régression, le journal dit comment vous avez cherché (quelles lignes, quels essais, avec qui).
-- [ ] Les deux phrases de conclusion sont écrites.
 
+- [x] Le carnet contient la liste de contrôle de la version 1 (au moins cinq comportements essayés).
+- [x] Le journal compte au moins trois entrées, une par modification, chacune avec ses quatre lignes.
+- [x] Les fichiers `chatbot-v1.html` à `chatbot-v4.html` existent, une version par fichier, aucune écrasée.
+- [x] Si vous n'avez trouvé aucune régression, le journal dit comment vous avez cherché (quelles lignes, quels essais, avec qui).
+- [x] Les deux phrases de conclusion sont écrites.
 
 🆘 **Si ça bloque**
+
 - Le chat renvoie un morceau de code au lieu du fichier : demandez « le fichier complet, en un seul bloc ». N'assemblez pas à la main.
 - Le chat a changé autre chose que ce que vous demandiez (un texte, un nom, un comportement) : c'est une régression, notez-la.
 - Vous demandez au chat de réparer une régression : c'est une **nouvelle** modification, donc une nouvelle version (`chatbot-v5.html`), une nouvelle entrée du journal, et vous retestez tout.

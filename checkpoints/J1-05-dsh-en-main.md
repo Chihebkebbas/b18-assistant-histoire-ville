@@ -9,6 +9,7 @@
 🎮 **Le défi** — Vous quittez le chat web : l'agent travaille désormais dans votre dossier, sur vos fichiers. Premier ordre : lire, rien de plus. Puis prouvez qu'il n'a rien touché, et qu'il n'a pas inventé ce qu'il dit avoir lu. Astuce 5 : exiger « je ne sais pas » et des références (ici, un chemin par fichier).
 
 🤖 **Vous ou l'agent ?**
+
 - **L'agent** lit votre dossier `atelier` et décrit ce qu'il y trouve. Rien d'autre aujourd'hui.
 - **Vous** installez, réglez, rangez la clé, lisez la réponse, ouvrez chaque fichier cité pour la vérifier, contrôlez que rien n'a changé.
 - **Jamais délégué** : la clé, l'accord donné à une écriture, tout ce qui touche à Git.
@@ -29,6 +30,7 @@ Les commandes sont dans la [notice dsh](../ressources/dsh.md) : recopiez-les tel
    ```
 
    La dernière commande doit annoncer qu'il n'y a rien à valider (« nothing to commit, working tree clean »). C'est votre état de référence.
+
 4. **Réglez dsh** : étapes 2 à 4 de la notice (le dossier `dsh-capweb`, la télémétrie coupée, `settings.yaml`, puis `.credentials.yaml` avec la clé « agent »).
 5. **Premier essai** : étape 5 de la notice, depuis `atelier` : `dsh --profile headless "Reponds uniquement OK"`.
 6. **Lancez l'agent** : étape 6 de la notice, `dsh web` depuis `atelier`. Choisissez `atelier` comme espace de travail ; vérifiez le modèle `capweb-ia` et le mode Read Only (`/permission`).
@@ -41,13 +43,14 @@ Les commandes sont dans la [notice dsh](../ressources/dsh.md) : recopiez-les tel
 10. Si le temps le permet, **voyez la barrière tenir** : demandez « Crée le fichier public/essai-dsh.txt contenant ok », refusez la demande d'autorisation qui apparaît, puis relancez `git status -- atelier` : toujours rien.
 
 ✅ **Preuve** — cochez, ou montrez au formateur
-- [ ] `dsh --version` affiche `0.1.5-rc.2` ; la session est ouverte sur le dossier `atelier`, en mode **Read Only**, avec le modèle `capweb-ia`.
-- [ ] La consigne et la réponse de l'agent sont collées dans le [carnet](../carnet.md), avec, pour chaque fichier cité, une ligne « existe ? description juste ? ».
-- [ ] `git status -- atelier`, lancé devant le formateur, ne montre aucun fichier modifié ni nouveau.
-- [ ] Aucune clé n'est visible : ni à l'écran, ni dans le carnet, ni dans `atelier`. Elle n'existe que dans `dsh-capweb/.credentials.yaml`.
 
+- [x] `dsh --version` affiche `0.1.5-rc.2` ; la session est ouverte sur le dossier `atelier`, en mode **Read Only**, avec le modèle `capweb-ia`.
+- [x] La consigne et la réponse de l'agent sont collées dans le [carnet](../carnet.md), avec, pour chaque fichier cité, une ligne « existe ? description juste ? ».
+- [x] `git status -- atelier`, lancé devant le formateur, ne montre aucun fichier modifié ni nouveau.
+- [x] Aucune clé n'est visible : ni à l'écran, ni dans le carnet, ni dans `atelier`. Elle n'existe que dans `dsh-capweb/.credentials.yaml`.
 
 🆘 **Si ça bloque**
+
 - Une erreur de dsh (`dsh: AUTH: 401`, `INVALID_REQUEST: 400`, `TRANSPORT`, `MISSING_CREDENTIAL`…) : le tableau « Si ça bloque » de la [notice](../ressources/dsh.md) donne la cause et le remède de chacune. PowerShell refuse de lancer `dsh` : tapez `dsh.cmd`.
 - Git répond « Please tell me who you are » : lancez `git config user.name "Prénom Nom"` et `git config user.email "vous@exemple.fr"` (des valeurs de fantaisie suffisent, aucune donnée personnelle réelle), puis relancez `git commit`.
 - Pas de Git sur le poste : prévenez le formateur tout de suite ; Git sert ici, à J1-06, à J1-07 et à la sauvegarde de fin de journée.

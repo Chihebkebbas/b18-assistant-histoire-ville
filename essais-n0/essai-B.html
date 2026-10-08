@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot — Histoire de Paris</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --panel: #fffdf8;
+        --seine: #23557a;
+        --seine-dark: #17405e;
+        --carmine: #a4393a;
+        --ink: #2b2620;
+        --muted: #7a7266;
+        --border: #e4dccd;
+        --bot-bubble: #ffffff;
+        --user-bubble: #23557a;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        background:
+          radial-gradient(
+            circle at 15% 20%,
+            rgba(35, 85, 122, 0.08),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 85% 80%,
+            rgba(164, 57, 58, 0.07),
+            transparent 45%
+          ),
+          var(--bg);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .app {
+        width: 100%;
+        max-width: 760px;
+        height: min(92vh, 860px);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(43, 38, 32, 0.18);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      header {
+        background: linear-gradient(135deg, var(--seine-dark), var(--seine));
+        color: #fdf9f0;
+        padding: 16px 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .blason {
+        width: 44px;
+        height: 44px;
+        flex: none;
+        border-radius: 50%;
+        background: #fdf9f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      header h1 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+      header .sub {
+        font-size: 0.78rem;
+        opacity: 0.85;
+        font-style: italic;
+        margin-top: 2px;
+      }
+      .status {
+        margin-left: auto;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.9;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #8fd6a8;
+      }
+      #chat {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        scroll-behavior: smooth;
+      }
+      .msg {
+        display: flex;
+        gap: 10px;
+        max-width: 88%;
+      }
+      .msg.user {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        flex: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        border: 1px solid var(--border);
+        background: #f0e9db;
+      }
+      .bubble {
+        padding: 12px 15px;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+      }
+      .msg.bot .bubble {
+        background: var(--bot-bubble);
+        border: 1px solid var(--border);
+        border-top-left-radius: 4px;
+      }
+      .msg.user .bubble {
+        background: var(--user-bubble);
+        color: #fdf9f0;
+        border-top-right-radius: 4px;
+      }
+      .bubble b {
+        color: var(--carmine);
+      }
+      .msg.user .bubble b {
+        color: #ffd9a0;
+      }
+      .bubble .year {
+        color: var(--seine);
+        font-weight: bold;
+      }
+      .typing .bubble {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        height: 40px;
+      }
+      .typing .bubble span {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--muted);
+        animation: blink 1.2s infinite;
+      }
+      .typing .bubble span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .typing .bubble span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      @keyframes blink {
+        0%,
+        80%,
+        100% {
+          opacity: 0.25;
+        }
+        40% {
+          opacity: 1;
+        }
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 22px 4px;
+      }
+      .chip {
+        font-family: inherit;
+        font-size: 0.78rem;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #fbf7ee;
+        color: var(--seine-dark);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .chip:hover {
+        background: var(--seine);
+        color: #fdf9f0;
+        border-color: var(--seine);
+      }
+      form {
+        display: flex;
+        gap: 10px;
+        padding: 12px 22px 18px;
+        border-top: 1px solid var(--border);
+        background: #fbf8f1;
+      }
+      input {
+        flex: 1;
+        font-family: inherit;
+        font-size: 0.95rem;
+        padding: 11px 15px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--ink);
+        outline: none;
+      }
+      input:focus {
+        border-color: var(--seine);
+      }
+      button.envoyer {
+        font-family: inherit;
+        font-size: 0.95rem;
+        padding: 11px 20px;
+        border: none;
+        border-radius: 10px;
+        background: var(--carmine);
+        color: #fdf9f0;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      button.envoyer:hover {
+        background: #8a2f30;
+      }
+      footer {
+        text-align: center;
+        font-size: 0.7rem;
+        color: var(--muted);
+        padding: 0 10px 10px;
+        font-style: italic;
+      }
+      @media (max-width: 520px) {
+        .app {
+          height: 100vh;
+          border-radius: 0;
+        }
+        header h1 {
+          font-size: 1rem;
+        }
+        .status {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app" role="application" aria-label="Chatbot histoire de Paris">
+      <header>
+        <div class="blason" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M3 21V10l4-3 4 3v11M13 21V8l4-4 4 4v13"
+              stroke="#23557a"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M3 21h18"
+              stroke="#23557a"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1>Histoire de Paris</h1>
+          <div class="sub">
+            Fluctuat nec mergitur — balayée par les flots, elle ne sombre pas
+          </div>
+        </div>
+        <div class="status"><span class="dot"></span> En ligne</div>
+      </header>
+
+      <div id="chat" aria-live="polite"></div>
+
+      <div class="chips" id="chips"></div>
+
+      <form id="form" autocomplete="off">
+        <input
+          id="input"
+          type="text"
+          placeholder="Posez votre question : « Lutèce », « la Révolution », « Haussmann »…"
+          aria-label="Votre question"
+        />
+        <button class="envoyer" type="submit">Envoyer</button>
+      </form>
+      <footer>
+        Chatbot hors-ligne à réponses scriptées — aucune donnée n'est envoyée
+        sur Internet.
+      </footer>
+    </div>
+
+    <script>
+      "use strict";
+
+      /* ---------- Base de connaissances ---------- */
+      const KB = [
+        {
+          k: [
+            "lutèce",
+            "lutetia",
+            "origine",
+            "origines",
+            "parisii",
+            "gaulois",
+            "antiquité",
+            "fondation",
+            "fondé",
+            "né",
+          ],
+          a: "Les origines 🏛️\n\nVers <span class=\"year\">250 av. J.-C.</span>, un peuple gaulois, les <b>Parisii</b>, s'installe sur l'île de la Cité et les berges de la Seine. C'est la naissance de <b>Lutèce</b> (Lutetia).\n\nEn <span class=\"year\">52 av. J.-C.</span>, la ville est prise par les Romains après la victoire de Labienus. La cité se romanise : forum, thermes, arènes (dont les vestiges des <b>Arènes de Lutèce</b> sont encore visibles dans le 5ᵉ arrondissement).\n\nC'est au IVᵉ siècle que la ville prend le nom de son peuple : <b>Paris</b>.",
+        },
+        {
+          k: ["clovis", "capitale", "mérovingien", "508"],
+          a: 'Clovis et la première capitale 👑\n\nEn <span class="year">508</span>, <b>Clovis</b>, roi des Francs, fait de Paris sa capitale. Il y siège et y est honoré comme « glorieux roi » par l\'évêque Geneviève… selon la tradition, il y serait aussi enterré (basilique des Saints-Apôtres, future abbaye Sainte-Geneviève).\n\nParis devient ainsi le cœur politique du royaume franc, avant de perdre ce rôle au profit de Soissons, puis de Aix-la-Chapelle sous Charlemagne.',
+        },
+        {
+          k: ["geneviève", "sainte geneviève", "attila", "huns", "451"],
+          a: 'Sainte Geneviève, la protectrice 🛡️\n\nVers <span class="year">451</span>, alors qu\'Attila et ses Huns menacent la Gaule, <b>Geneviève</b>, jeune chrétienne de Nanterre, exhorte les Parisiens à ne pas fuir : « Si les Huns viennent, la ville sera épargnée. » Attila contourne effectivement Paris.\n\nDevenue patronne de la ville, elle est invoquée à nouveau en <span class="year">885</span>… mais cette fois le siège des <b>Vikings</b> (885-887) est bien réel : Paris résiste plus d\'un an avant l\'arrivée du secours de Charles le Gros.',
+        },
+        {
+          k: [
+            "philippe auguste",
+            "philippe",
+            "muraille",
+            "enceinte",
+            "louvre",
+            "forteresse",
+            "1190",
+            "moyen âge",
+            "moyen-age",
+            "médiéval",
+          ],
+          a: "Philippe Auguste et le Paris médiéval 🏰\n\nSous <b>Philippe Auguste</b> (1180-1223), Paris entre dans son premier âge d'or :\n• <span class=\"year\">1190-1215</span> : une vaste <b>muraille</b> protège la rive droite (on peut encore voir des vestiges rue François-Miron, dans le cour du Louvre ou au Musée de Cluny) ;\n• <span class=\"year\">1200</span> environ : le roi accorde des privilèges aux étudiants — la naissance de l'<b>Université de Paris</b> ;\n• Il fait bâtir le <b>Louvre</b>, alors une forteresse destinée à surveiller la Seine et défendre l'ouest de la ville.\n\nÀ sa mort, Paris est la plus grande ville d'Europe occidentale, avec environ 200 000 habitants.",
+        },
+        {
+          k: [
+            "sorbonne",
+            "université",
+            "étudiant",
+            "étudiants",
+            "quartier latin",
+            "robert de sorbon",
+          ],
+          a: "La Sorbonne 🎓\n\nFondée vers <span class=\"year\">1257</span> par le théologien <b>Robert de Sorbon</b> comme collège pour étudiants pauvres, la Sorbonne devient le cœur de l'Université de Paris, l'une des plus anciennes d'Europe (l'université elle-même naît autour de 1200).\n\nLe quartier qui l'entoure — le <b>Quartier latin</b>, où l'on enseignait en latin — est encore aujourd'hui le quartier étudiant de la ville.",
+        },
+        {
+          k: [
+            "sainte chapelle",
+            "sainte-chapelle",
+            "louis ix",
+            "saint louis",
+            "rayonnant",
+            "vitrail",
+          ],
+          a: "La Sainte-Chapelle ✨\n\nConstruite en seulement six ans (<span class=\"year\">1242-1248</span>) par <b>Saint Louis</b> (Louis IX) pour abriter la Couronne d'épinons et un fragment de la Vraie Croix rapportés des croisades, la Sainte-Chapelle est un joyau du gothique rayonnant.\n\nSes <b>1 113 vitraux</b> couvrent près des deux tiers des murs : l'intérieur semble être une cage de lumière. Elle est nichée dans l'enceinte du Palais de la Cité, résidence des rois jusqu'à Charles V.",
+        },
+        {
+          k: [
+            "etienne marcel",
+            "étienne marcel",
+            "jacquerie",
+            "révolte",
+            "1358",
+            "guerre de cent ans",
+          ],
+          a: "Étienne Marcel et la révolte parisienne ⚔️\n\nMarchand drapier devenu <b>prévôt des marchands</b> (l'équivalent du maire), <b>Étienne Marcel</b> mène en 1357-1358 la première grande révolte urbaine de l'histoire de Paris, en pleine Guerre de Cent Ans et crise économique.\n\nIl impose au dauphin (futur Charles V) la <b>Grande Ordonnance</b> de 1357, embryon de contrôle du pouvoir royal. Mais l'invasion de Paris par les paysans de la <b>Jacquerie</b> lui fait perdre la population : il est assassiné en <span class=\"year\">1358</span> alors qu'il tentait de livrer une porte de la ville aux Anglais.",
+        },
+        {
+          k: [
+            "jeanne d'arc",
+            "1429",
+            "1436",
+            "charles vii",
+            "occupation anglaise",
+            "bourgeois",
+          ],
+          a: "Jeanne d'Arc et Paris sous les Anglais 🌹\n\nPendant la Guerre de Cent Ans, Paris est aux mains des Bourguignons alliés aux Anglais (Traité de Troyes, 1420). En <span class=\"year\">1429</span>, <b>Jeanne d'Arc</b> tente de reprendre la ville d'assaut devant la porte Saint-Honoré — elle y est blessée, l'attaque échoue.\n\nParis ne revient à <b>Charles VII</b> qu'en <span class=\"year\">1436</span>, par négociation et paiement plutôt que par les armes. La ville, ruinée, mettra un siècle à s'en remettre.",
+        },
+        {
+          k: [
+            "henri iv",
+            "henri quatre",
+            "pont neuf",
+            "place des vosges",
+            "place royale",
+            "1607",
+            "1612",
+            "1610",
+            "assassinat",
+            "ravaillac",
+          ],
+          a: 'Henri IV, le Paris des débuts modernes 🌉\n\nRoi de France converti au catholicisme (« Paris vaut bien une messe », dit la légende), <b>Henri IV</b> embellit sa capitale :\n• <span class="year">1607</span> : inauguration du <b>Pont-Neuf</b>, premier pont de Paris sans maisons, avec ses trottoirs et sa statue équestre du roi ;\n• <span class="year">1612</span> : achèvement de la <b>Place Royale</b> (aujourd\'hui Place des Vosges), première place urbaine harmonieuse d\'Europe ;\n• Il achève le Louvre et relie les Tuileries par la Grande Galerie, aménage la Place Dauphine.\n\nIl est assassiné par <b>Ravaillac</b> le <span class="year">14 mai 1610</span>, rue de la Ferronnerie, en route vers l\'Arsenal.',
+        },
+        {
+          k: [
+            "louis xiv",
+            "louis 14",
+            "fronde",
+            "versailles",
+            "soleil",
+            "colbert",
+            "invalides",
+            "observatoire",
+            "portes saint",
+          ],
+          a: "Louis XIV : Paris révolté, puis délaissé ☀️\n\nJeune roi, Louis XIV connaît à Paris la <b>Fronde</b> (1648-1653), une révolte nobiliaire et populaire qui le traumatisera : sa famille doit fuir la ville de nuit. Devenu adulte, il quitte Paris pour <b>Versailles</b> (1682) et la cour s'y installe définitivement.\n\nMais Paris continue de s'embellir sous Colbert : collège des Quatre-Nations, Observatoire, <b>Hôtel des Invalides</b> (1670-1679) pour les soldats âgés, places royales triomphales (Victoires, Vendôme). La ville s'étend au-delant des murailles : les Faubourgs Saint-Antoine et Saint-Germain explosent.",
+        },
+        {
+          k: [
+            "révolution",
+            "1789",
+            "bastille",
+            "14 juillet",
+            "prise de la bastille",
+            "terreur",
+            "robespierre",
+            "louis xvi",
+            "guillotine",
+            "1793",
+            "1792",
+            "tuileries",
+          ],
+          a: 'Paris et la Révolution française 🚨\n• <span class="year">14 juillet 1789</span> : la <b>prise de la Bastille</b>. La forteresse-prison, symbole de l\'arbitraire royal, est emportée par le peuple parisien venu chercher des poudres ;\n• <span class="year">5-6 octobre 1789</span> : marche des Parisiennes sur Versailles, la famille royale est ramenée aux Tuileries ;\n• <span class="year">10 août 1792</span> : prise des <b>Tuileries</b>, chute de la monarchie ;\n• <span class="year">21 janvier 1793</span> : <b>Louis XVI</b> guillotiné place de la Révolution (aujourd\'hui place de la Concorde) ;\n• <span class="year">1793-1794</span> : la <b>Terreur</b>, avec Robespierre et les sans-culottes parisiens, s\'achève par Thermidor (juillet 1794).\n\nParis devient le laboratoire politique de la France moderne : c\'est ici que naissent les notions de souveraineté populaire et de droits de l\'homme appliqués.',
+        },
+        {
+          k: ["panthéon", "mirabeau", "voltaire", "rousseau", "hugo", "curie"],
+          a: "Le Panthéon 🏛️\n\nConçu par Soufflot comme l'église Sainte-Geneviève, le bâtiment est transformé en <span class=\"year\">1791</span> en temple laïque des « grands hommes » : <b>Aux grands hommes, la patrie reconnaissante</b>.\n\nOn y honore Voltaire et Rousseau (1791), Mirabeau (puis retiré), Victor Hugo (1885), Marie et Pierre Curie (1995, première femme honorée « pour elle-même »), Marie Curie… Jean Moulin, Joséphine Baker et d'autres y reposent encore.",
+        },
+        {
+          k: [
+            "napoléon",
+            "napoleon",
+            "bonaparte",
+            "empire",
+            "arc de triomphe",
+            "1804",
+            "sacre",
+            "concorde",
+            "rivoli",
+            "canal",
+          ],
+          a: "Napoléon et le Paris impérial 🦅\n\nSacre de <b>Napoléon Iᵉʳ</b> le <span class=\"year\">2 décembre 1804</span> à Notre-Dame. L'Empereur rêve d'une capitale monumentale :\n• <span class=\"year\">1806</span> : première pierre de l'<b>Arc de Triomphe</b> (achevé en 1836) ;\n• percée de la <b>rue de Rivoli</b>, numérotation des maisons, fontaines, ponts (Austerlitz, Iéna), canaux (Saint-Martin, Ourcq) ;\n• la place Louis XV devient place de la Concorde, décorée d'obélisque égyptienne plus tard (1836).\n\n« La Bastille ? Il ne faut pas deux heures pour visiter ce qui a eu tant de retentissement », aurait-il noté avec ironie en visitant les ruines.",
+        },
+        {
+          k: [
+            "haussmann",
+            "haussmannien",
+            "percée",
+            "grands boulevards",
+            "napoléon iii",
+            "napoleon iii",
+            "second empire",
+            "1853",
+            "rénovation",
+            "urbanisme",
+            "égout",
+            "transformation",
+          ],
+          a: "Haussmann, la grande transformation 🏗️\n\nNommé préfet de la Seine par <b>Napoléon III</b> en <span class=\"year\">1853</span>, le baron <b>Georges-Eugène Haussmann</b> dirige jusqu'en 1870 la plus grande rénovation urbaine de l'histoire de Paris :\n• percées d'avenues rectilignes (boulevard de Sébastopol, rue de Rivoli prolongée, avenue de l'Opéra) et de places étoilées (Étoile, République) ;\n• immeubles à façades unifiées, balcons filants au 2ᵉ et 5ᵉ étages — le style <b>haussmannien</b> ;\n• <b>603 km d'égouts</b> modernisés sous Belgrand, aqueducs, parcs (Bois de Boulogne et de Vincennes, parc Montsouris, Buttes-Chaumont) ;\n• gares (Nord, Est, Lyon, Austerlitz…) et réseau ferroviaire périphérique.\n\nButs affichés : circulation, salubrité… et contrôle des barricades. Bilan contrasté : des quartiers entiers du Moyen Âge disparaissent, mais Paris devient la « ville lumière » moderne du monde entier.",
+        },
+        {
+          k: [
+            "commune",
+            "1871",
+            "hôtel de ville",
+            "adversaire",
+            "semaine sanglante",
+            "mur des fédérés",
+          ],
+          a: "La Commune de Paris 🔥\n\nAprès la défaite de 1870 face à la Prusse et le siège de la ville (hiver 1870-71), les Parisiens refusent la paix. Le <span class=\"year\">18 mars 1871</span>, la Garde nationale se soulève : c'est la <b>Commune</b>, une insurrection qui gouverne Paris 72 jours, avec des mesures sociales avancées (séparation Église-État, école gratuite, travailleurs aux ateliers abandonnés).\n\nElle est écrasée dans le sang pendant la <b>Semaine sanglante</b> (21-28 mai 1871) : entre 6 000 et 20 000 morts selon les estimations, plus les déportations. L'Hôtel de Ville et les Tuileries brûlent. Ce souvenir marquera durablement la mémoire ouvrière.",
+        },
+        {
+          k: [
+            "tour eiffel",
+            "eiffel",
+            "1889",
+            "expo",
+            "exposition universelle",
+            "300 mètres",
+            "monument",
+            "protestation",
+          ],
+          a: "La Tour Eiffel 🗼\n\nÉlevée en <span class=\"year\">1889</span> pour l'<b>Exposition universelle</b> célébrant le centenaire de la Révolution, la tour de <b>Gustave Eiffel</b> (avec ses ingénieurs Koechlin et Nouguier) mesure alors 312 m — la plus haute structure du monde jusqu'en 1929 (aujourd'hui 330 m avec antennes).\n\nElle était prévue temporaire et véhémentement contestée : des artistes comme Maupassant ou Dumas fils signent une pétition contre cette « tour gigantesque de tôle noire ». Sauvée par son utilité scientifique (radio, télégraphie), elle devient le symbole même de Paris. Aujourd'hui, environ 7 millions de visiteurs par an.",
+        },
+        {
+          k: [
+            "métro",
+            "metro",
+            "1900",
+            "guimard",
+            "port dauphine",
+            "ligne 1",
+            "égout",
+          ],
+          a: "Le Métro 🚇\n\nInauguré le <span class=\"year\">19 juillet 1900</span> pour l'Exposition universelle, avec la ligne 1 (Porte de Vincennes – Porte Maillot). Le principe est déjà le même qu'aujourd'hui : cartes en main, stations rapprochées (500-600 m), correspondances.\n\nLes entrées en fonte verte de style <b>Art nouveau</b> signées <b>Hector Guimard</b> deviennent une icône immédiate de la ville. Aujourd'hui : 14 lignes principales (+ lignes complémentaires), environ 320 stations, plus de 2 milliards de voyages par an — sur le réseau le plus fréquenté d'Europe occidentale après Moscou.",
+        },
+        {
+          k: [
+            "belle époque",
+            "belle epoque",
+            "1900",
+            "présentation",
+            "montmartre",
+            "sacré coeur",
+            "sacre-coeur",
+            "moulin rouge",
+            " Picasso",
+            "picas",
+            "artistes",
+            "cabaret",
+          ],
+          a: "La Belle Époque à Paris 🎩\n\nEntre 1871 et 1914, Paris est la capitale culturelle du monde : <b>Montmartre</b> attire peintres et poètes (Picasso, Modigliani, Utrillo), les cabarets explosent (Moulin Rouge, 1889), les Grands Boulevards s'illuminent — la « ville lumière » l'est aussi littéralement.\n\nLa <b>basilique du Sacré-Cœur</b> est construite en haut de la butte Montmartre (1875-1914, financée par souscription nationale). L'Exposition universelle de <span class=\"year\">1900</span> (grand et petit Palais, pont Alexandre-III, Gare de Lyon) attire plus de 48 millions de visiteurs.",
+        },
+        {
+          k: [
+            "notre dame",
+            "cathédrale",
+            "1163",
+            "incendie",
+            "2019",
+            "victor hugo",
+            "bosse",
+            "réouverture",
+            "2024",
+          ],
+          a: 'Notre-Dame de Paris ⛪\n\nCommencée en <span class="year">1163</span> (première pierre sous Louis VII, en présence du pape Alexandre III selon la tradition) et achevée vers <span class="year">1345</span>, Notre-Dame est le cœur géométrique de Paris : le point zéro des routes de France est sur son parvis.\n\nSauvée de la ruine au XIXᵉ siècle après le roman de <b>Victor Hugo</b> (1831), restaurée par Viollet-le-Duc, elle subit un <b>incendie majeur</b> le <span class="year">15 avril 2019</span> : la flèche et la « forêt » de charpente disparaissent, mais les tours et les voûtes tiennent.\n\nLa cathédrale a rouvert au public en <b>décembre 2024</b> après une restauration exemplaire.',
+        },
+        {
+          k: [
+            "louvre",
+            "musée",
+            "pyramide",
+            "1793",
+            "monna lisa",
+            "mona lisa",
+            "joconde",
+            "leonard",
+            "glass",
+            "pei",
+          ],
+          a: 'Le Louvre 🖼️\n\nDu château-forteresse de Philippe Auguste (<span class="year">1190</span>) à la résidence des rois, le palais devient <b>musée</b> le <span class="year">10 août 1793</span>, pendant la Révolution.\n\nLa <b>pyramide de verre</b> de l\'architecte Ieoh Ming Pei, inaugurée en <span class="year">1989</span>, provoque elle aussi un débat passionné — comme la tour Eiffel un siècle plus tôt. Le Louvre est aujourd\'hui le musée le plus visité du monde (près de 9 millions de visiteurs/an), avec sa vedette : la <b>Joconde</b> de Léonard de Vinci.',
+        },
+        {
+          k: [
+            "première guerre",
+            "14-18",
+            "1914",
+            "taxis de la marne",
+            "grande guerre",
+          ],
+          a: "Paris et la Première Guerre mondiale 🎖️\n\nEn <span class=\"year\">septembre 1914</span>, alors que les armées allemandes approchent, le général Gallieni réquisitionne environ 600 <b>taxis de la Marne</b> pour transporter 4 000 soldats de réserve au front. Symbole extraordinaire (l'impact militaire fut limité), c'est la première « mobilisation automobile » de l'histoire.\n\nLa victoire de la Marne sauve Paris. La ville, à 40 km du front, vit ensuite la guerre à l'arrière : usines d'armement, femmes aux commandes (« munitionnettes »), obus allemands en 1918 (les « Paris-Bertha »).",
+        },
+        {
+          k: [
+            "seconde guerre",
+            "1940",
+            "occupation",
+            "libération",
+            "liberation",
+            "résistance",
+            "resistance",
+            "choltitz",
+            "von choltitz",
+            "hitler",
+            "1944",
+            "champ de mars",
+          ],
+          a: "Occupation et Libération 🕊️\n\nLe <span class=\"year\">14 juin 1940</span>, l'armée allemande entre dans Paris vide et silencieuse. La ville est en zone occupée jusqu'en août <span class=\"year\">1944</span> : réquisitions, rafles (notamment le Vél d'Hiv en juillet 1942), carte de rationnement, couvre-feu — mais aussi une intense activité de <b>Résistance</b> (affiches, sabotage, presse clandestine).\n\nLe <span class=\"year\">25 août 1944</span>, la <b>2ᵉ DB</b> du général Leclerc libère Paris. Le général von Choltitz, gouverneur militaire, désobéit à l'ordre d'Hitler de détruire la ville (mines sur les ponts et monuments). Le lendemain, de Gaulle descend les Champs-Élysées au milieu d'une foule immense.",
+        },
+        {
+          k: [
+            "mai 68",
+            "1968",
+            "sorbonne barricades",
+            "manifestation",
+            "étudiants barricades",
+            "pavage",
+          ],
+          a: "Mai 68 à Paris 📢\n\nParti de protestations étudiantes à Nanterre puis à la Sorbonne, le mouvement de <b>mai 1968</b> devient en quelques jours une grève générale de 7 à 10 millions de travailleurs — la plus importante de l'histoire de France.\n\nLes affrontements au Quartier latin, les barricades (reprises des barricades du XIXᵉ !), les pavés lancés sur le boulevard Saint-Michel (« Sous les pavés, la plage ») ébranlent le régime gaullien. Le général de Gaulle disparaît un temps à Baden-Baden, puis dissout l'Assemblée : sa majorité est réélue en juin.\n\nMais la société française est durablement transformée : mœurs, condition féminine, rapports d'autorité, éducation.",
+        },
+        {
+          k: ["pompidou", "beaubourg", "centre pompidou", "1977", "couleur"],
+          a: "Le Centre Pompidou 🎨\n\nInauguré en <span class=\"year\">1977</span> sur le plateau Beaubourg, le centre culturel conçu par Renzo Piano et Richard Rogers retourne l'architecture : tuyaux, escaliers et structures colorés à l'extérieur, plateaux libres à l'intérieur.\n\nIl a fallu « vider » un quartier insalubre pour le construire. Au départ très critiqué (« raffinerie de pétrole au cœur de Paris »), il est devenu l'un des sites les plus visités de la ville, symbole du Paris moderne et culturel.",
+        },
+        {
+          k: [
+            "grande couronne",
+            "grand paris",
+            "banlieue",
+            "métropole",
+            "dép",
+            "départements",
+            "seine",
+            "petite couronne",
+            "1964",
+            "1968",
+          ],
+          a: "Paris et sa banlieue : la métropole 🌆\n\nJusqu'en <span class=\"year\">1964</span>, le département de la Seine incluait Paris et sa proche banlieue. La réforme de 1964-1968 (loi Malraux/lois Debré) crée les départements des <b>Hauts-de-Seine</b>, <b>Seine-Saint-Denis</b>, <b>Val-de-Marne</b> et fait de Paris un département à part entière (75).\n\nL'expression « <b>Grand Paris</b> » désigne aujourd'hui l'ensemble métropolitain (environ 10-12 millions d'habitants) et un projet d'aménagement : Grand Paris Express, métro automatique de 200 km en construction autour de la capitale.",
+        },
+        {
+          k: [
+            "population",
+            "habitants",
+            "combien de personnes",
+            "démographie",
+            "grandeur",
+            "superficie",
+            "chiffres",
+          ],
+          a: "Paris en chiffres 📊\n\n• Paris intra-muros : environ <b>2,1 millions d'habitants</b> (densité record d'environ 20 000 hab/km²) sur 105 km² ;\n• Agglomération « Grand Paris » : plus de <b>7 millions</b> ; aire urbaine : 12-13 millions ;\n• Record historique : près de 2,9 millions d'habitants vers <span class=\"year\">1921</span>, avant la désurbanisation vers la banlieue ;\n• Au Moyen Âge, Paris était déjà la plus grande ville d'Occident vers 1300 (200 000 hab. environ) ;\n• La ville compte 20 arrondissements depuis <span class=\"year\">1860</span> (annexion des communes périphériques par Napoléon III).",
+        },
+        {
+          k: [
+            "chronologie",
+            "frise",
+            "dates",
+            "résumé",
+            "timeline",
+            "grandes dates",
+            "histoire de paris",
+          ],
+          a: 'Frise chronologique de Paris 🕰️\n\n• <span class="year">~250 av. J.-C.</span> — Les Parisii fondent Lutèce\n• <span class="year">52 av. J.-C.</span> — Conquête romaine\n• <span class="year">508</span> — Clovis fait de Paris sa capitale\n• <span class="year">885-887</span> — Siège des Vikings\n• <span class="year">1190-1215</span> — Muraille de Philippe Auguste, naissance du Louvre\n• <span class="year">~1257</span> — Fondation de la Sorbonne\n• <span class="year">1248</span> — Sainte-Chapelle\n• <span class="year">1345</span> — Achèvement de Notre-Dame\n• <span class="year">1358</span> — Révolte d\'Étienne Marcel\n• <span class="year">1436</span> — Fin de l\'occupation anglaise\n• <span class="year">1610</span> — Assassinat d\'Henri IV\n• <span class="year">1682</span> — La cour part à Versailles\n• <span class="year">1789</span> — Prise de la Bastille\n• <span class="year">1793</span> — Exécution de Louis XVI\n• <span class="year">1804</span> — Sacre de Napoléon\n• <span class="year">1853-1870</span> — Transformation haussmannienne\n• <span class="year">1871</span> — Commune de Paris\n• <span class="year">1889</span> — Tour Eiffel\n• <span class="year">1900</span> — Métro et Exposition universelle\n• <span class="year">1914</span> — Taxis de la Marne\n• <span class="year">1940-1944</span> — Occupation, puis Libération (25 août 1944)\n• <span class="year">1968</span> — Mai 68\n• <span class="year">2019</span> — Incendie de Notre-Dame (réouverture en 2024)',
+        },
+        {
+          k: [
+            "anecdote",
+            "anecdotes",
+            "secret",
+            "insolite",
+            "curiosité",
+            "saviez",
+            "le saviez",
+            "étonnant",
+          ],
+          a: "Quelques anecdotes parisiennes ✨\n\n• La plus courte rue de Paris mesure 5,75 m : la <b>rue des Degrés</b> (2ᵉ) ;\n• Il existe un <b>lac souterrain</b> sous l'Opéra Garnier (et les décors y sont entreposés sur des barges) ;\n• Le <b>point zéro</b> des routes de France est sur le parvis de Notre-Dame ;\n• Paris possède un vignoble en plein Montmartre, dont la récolte est mise aux enchères chaque automne ;\n• Les 100 000 pavés du XIXᵉ siècle furent longtemps les « blocs » des barricades — Mai 68 les a rendus légendaires ;\n• À l'Île de la Cité, place Dauphine et place des Vosges ont la même « leçon d'urbanisme » : perfection au XVIIᵉ siècle ;\n• Le <b>pilier des Nautes</b> (Iᵉʳ siècle), conservé aujourd'hui au musée de Cluny, est le plus ancien monument sculpté de Paris ;",
+        },
+        {
+          k: [
+            "arc de triomphe",
+            "étoile",
+            "tombe du soldat",
+            "inconnu",
+            "champs élysées",
+            "1836",
+          ],
+          a: "L'Arc de Triomphe 🏆\n\nCommandé par Napoléon en <span class=\"year\">1806</span> (« Vous ne rentrerez dans vos foyers que sous des arcs de triomphe »), il n'est achevé qu'en <span class=\"year\">1836</span>, sous Louis-Philippe. Depuis 1920, il abrite la <b>Tombe du Soldat Inconnu</b>, dont la flamme est ravivée chaque soir à 18 h 30.\n\nSous l'arc passe l'avenue des Champs-Élysées, dessinée au XVIIᵉ siècle comme une « perspective » royale des Tuileries.",
+        },
+        {
+          k: [
+            "cathédrale",
+            "église",
+            "chapelle",
+            "religieux",
+            "chrétien",
+            "christianisme",
+            "baptême",
+            "denis",
+            "montmartre",
+            "mont des martyrs",
+          ],
+          a: "Paris, ville chrétienne ⛪\n\nLa tradition fait de <b>Saint Denis</b> le premier évêque de Paris (IIIᵉ siècle), décapité et, dit-on, portant sa tête sur ses mains jusqu'à Montmartre — le « mont des martyrs ». L'abbaye royale de Saint-Denis (hors Paris actuel) devient la nécropole des rois de France.\n\nLa ville compte d'innombrables églises : Sainte-Chapelle, Saint-Germain-des-Prés (crypte du XIᵉ s.), Saint-Eustache, Saint-Sulpice, le Sacré-Cœur, etc.",
+        },
+        {
+          k: ["bonjour", "salut", "bonsoir", "hello", "coucou"],
+          a: "Bonjour et bienvenue à Paris ! 🗼 Je suis votre guide dans l'histoire de la ville, de Lutèce à nos jours.\n\nPosez-moi une question — par exemple : « Parle-moi de Haussmann », « Quand la Tour Eiffel a-t-elle été construite ? », « La Révolution », ou tapez « anecdotes ».",
+        },
+        {
+          k: ["merci"],
+          a: "Avec grand plaisir ! N'hésitez pas si vous voulez explorer une autre époque ou un monument de Paris. À bientôt ! 🌟",
+        },
+        {
+          k: ["au revoir", "bye", "adieu", "ciao"],
+          a: "Au revoir et à bientôt à Paris ! Rappelez-vous la devise de la ville : <b>Fluctuat nec mergitur</b> — « Elle est ballottée par les flots, mais ne sombre pas ». 👋",
+        },
+        {
+          k: [
+            "qui es-tu",
+            "qui es tu",
+            "présente-toi",
+            "presente",
+            "ton nom",
+            "comment tu t'appelles",
+            "tu es qui",
+          ],
+          a: "Je suis le <b>chatbot de l'Histoire de Paris</b> 🗼 : un petit guide scripté (et donc 100 % hors-ligne), conçu pour raconter la ville des Parisii à nos jours.\n\nJe connais les grandes périodes (Lutèce, Moyen Âge, Révolution, Haussmann, guerres mondiales…), les monuments (Tour Eiffel, Notre-Dame, Louvre…) et même quelques anecdotes. Essayez « chronologie » pour une vue d'ensemble !",
+        },
+      ];
+
+      const FALLBACKS = [
+        "Hmm, je ne connais pas encore ce sujet en détail. Essayez un de mes thèmes : « Lutèce », « le Moyen Âge », « la Révolution », « Haussmann », « la Tour Eiffel », « la Commune », « Mai 68 »… ou tapez « chronologie ».",
+        "Je n'ai pas la réponse à cela dans ma base de connaissances — je suis un guide focalisé sur l'histoire de Paris. Que diriez-vous de « la Libération de 1944 », « la Sainte-Chapelle » ou des « anecdotes » ?",
+        "Aïe, cette question dépasse mes connaissances parisiennes ! Essayez : « les origines de Paris », « Philippe Auguste », « le métro » ou « les chiffres de Paris ».",
+      ];
+
+      const CHIPS = [
+        "Les origines : Lutèce",
+        "Le Moyen Âge",
+        "La Révolution",
+        "Haussmann",
+        "La Tour Eiffel",
+        "La Libération de 1944",
+        "Chronologie",
+        "Anecdotes",
+      ];
+
+      /* ---------- Normalisation & moteur de correspondance ---------- */
+      function normalise(txt) {
+        return txt
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9\s'-]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function trouverReponse(q) {
+        const nq = normalise(q);
+        if (!nq) return null;
+
+        let meilleur = null;
+        let meilleurScore = 0;
+
+        for (const entree of KB) {
+          let score = 0;
+          for (const mot of entree.k) {
+            const nm = normalise(mot);
+            if (!nm) continue;
+            if (nq.includes(nm)) {
+              score += nm.includes(" ") ? 3 : nm.length >= 5 ? 2 : 1;
+            }
+          }
+          if (score > meilleurScore) {
+            meilleurScore = score;
+            meilleur = entree;
+          }
+        }
+        return meilleurScore >= 2 ? meilleur.a : null;
+      }
+
+      /* ---------- Interface ---------- */
+      const chat = document.getElementById("chat");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const chipsBox = document.getElementById("chips");
+      let fallbackIdx = 0;
+
+      function ajouterMessage(texte, qui) {
+        const wrap = document.createElement("div");
+        wrap.className = "msg " + qui;
+        const av = document.createElement("div");
+        av.className = "avatar";
+        av.textContent = qui === "bot" ? "🗼" : "👤";
+        const b = document.createElement("div");
+        b.className = "bubble";
+        b.innerHTML = texte;
+        wrap.appendChild(av);
+        wrap.appendChild(b);
+        chat.appendChild(wrap);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function afficherTyping() {
+        const wrap = document.createElement("div");
+        wrap.className = "msg bot typing";
+        wrap.id = "typing";
+        wrap.innerHTML =
+          '<div class="avatar">🗼</div><div class="bubble"><span></span><span></span><span></span></div>';
+        chat.appendChild(wrap);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      function retirerTyping() {
+        const t = document.getElementById("typing");
+        if (t) t.remove();
+      }
+
+      function botRepond(q) {
+        afficherTyping();
+        const delai = 450 + Math.min(1100, q.length * 12);
+        setTimeout(function () {
+          retirerTyping();
+          const rep = trouverReponse(q);
+          if (rep) {
+            ajouterMessage(rep, "bot");
+          } else {
+            ajouterMessage(FALLBACKS[fallbackIdx % FALLBACKS.length], "bot");
+            fallbackIdx++;
+          }
+        }, delai);
+      }
+
+      CHIPS.forEach(function (label) {
+        const c = document.createElement("button");
+        c.type = "button";
+        c.className = "chip";
+        c.textContent = label;
+        c.addEventListener("click", function () {
+          ajouterMessage(label, "user");
+          botRepond(label);
+        });
+        chipsBox.appendChild(c);
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const q = input.value.trim();
+        if (!q) return;
+        input.value = "";
+        ajouterMessage(q.replace(/</g, "&lt;"), "user");
+        botRepond(q);
+      });
+
+      /* Message d'accueil */
+      ajouterMessage(
+        "Bonjour ! Je suis votre guide dans l'<b>histoire de Paris</b> 🗼.\n\nDemandez-moi par exemple : « Qui étaient les Parisii ? », « Que faisait Haussmann ? », « Parle-moi de la Révolution » ou « Mai 68 ». Vous pouvez aussi taper <b>chronologie</b> pour les grandes dates ou <b>anecdotes</b> pour les secrets de la ville.",
+        "bot",
+      );
+    </script>
+  </body>
+</html>
